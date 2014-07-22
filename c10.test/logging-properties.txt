@@ -1,0 +1,11 @@
+handlers=java.util.logging.ConsoleHandler
+
+java.util.logging.ConsoleHandler.level=FINE
+
+.level=INFO
+
+java.util.logging.ConsoleHandler.formatter=java.util.logging.SimpleFormatter
+
+
+log4j.rootCategory=DEBUG
+
