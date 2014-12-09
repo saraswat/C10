@@ -75,6 +75,6 @@ public class TugOfWar extends Vat.BasicInitCall[XInt] {
 			results(Bob); 
 		})};
 	@agent public static def main(args: XRail[String]) {
-		new SamplingMHDriver[XInt](10000).run(args, ()=>new TugOfWar());
+		new SamplingDriver[XInt](10000).run(args, ()=>new TugOfWar());
 	}
 }
