@@ -1,0 +1,27 @@
+static import Arithmetic.*; // sum
+
+class Examples {
+  // for any given Rail a, a.domain stands for the *type* Long(0, a.size-1) .. 
+  // this is definable in X10 as soon as instance types are allowed.
+  // (partial) functions as generators of sets, 
+  // (partial) functions with groupby, as generators of arrays of sets
+  // reduction operators
+  // definite descriptors x!c -- the x s.t. s. x need not be completely defined.
+
+  // sum is defined in Arithmetic
+
+  def histogram(N:Int, A:Rail[Int(1,N)]) = sum ((i:A.domain)=> 1 groupby A(i)). 
+
+  static type Vector(N:Int)=Rail[Double](N).   
+
+  static class KMeans(N:Int, P:Int, K:Int, points:Rail[Vector(N)](P)) {
+     type Vector = Rail[Double](N). 
+     def delta(A:Vector(N), B:Vector(N))=max((i:A.domain)=>Math.abs(A(i)-B(i))).
+     def kmeans=kmeans(new Rail((i:0..(K-1))=>points(i))).
+
+     def kmeans(old:Rail[Vector(N)](K))=means ! {
+           T = new Rail(avg (i:0..(P-1))=>
+                        points(i) groupby argmin (j:0..(K-1))=>delta(points(i), old(j))),
+          means=delta(old, T) < epsilon? T: kmeans(T)
+     }
+}

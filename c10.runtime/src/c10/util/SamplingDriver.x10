@@ -4,12 +4,14 @@ import c10.lang.*;
 import c10.lang.Int;
 import c10.lang.Double;
 import c10.runtime.herbrand.Vat.InitCall;
+import c10.runtime.herbrand.FailureException;
 import c10.lang.probability.ProbabilisticValue;
 import x10.util.HashMap;
 import x10.util.ArrayList;
 
-public class SamplingDriver[T](N:XLong){T haszero}
+public class SamplingDriver[T](N:XLong){T haszero, T <: x10.lang.Comparable[T]}
 //implements C10Driver[T] 
+
 {
 	static val logger=Herbrand.logger;
 	def addEntry(map:HashMap[Atom[T],XDouble],t:Atom[T], p:XDouble) {
@@ -22,26 +24,25 @@ public class SamplingDriver[T](N:XLong){T haszero}
 		val samples = new XRail[Atom[T]](N, null as Atom[T]);
 		var count: XInt = 0n;
 		for (i in 0..(N-1)) {
-			val agent=agentMaker();
-		
+			val agent=agentMaker();		
 			agent.renew();
-			Console.OUT.println("Sample " + i + " promise=" + agent.getPromise());
-					 
-			try {
-				
-				new CCDriver[T]().run(args, agent,true); // now run to get a sample
+			try {			
+				val driver = new CCDriver[T]();
+				driver.run(args, agent,true); // now run to get a sample
+				if (driver.failed) throw new FailureException();
 				count++;
 				samples(i) = agent.getPromise().getValue();
-				Console.OUT.println("Sample " + i + " value :"  + samples(i));
+				//Console.OUT.println("Sample " + i + " value :"  + samples(i));
 			} catch (z:Exception) { // check for Abort.
-				Console.OUT.println("Sample " + i + " aborted." );
+				//Console.OUT.println("Sample " + i + " aborted." );
 				//z.printStackTrace();
-				//printExceptions(z as MultipleExceptions);
-				//Console.OUT.println("|");
 				samples(i)=null; // null out the result
-			}
+			} catch (z:Error) {
+				Console.OUT.println("Sample " + i + " aborted." );
+				z.printStackTrace();
+			} 
 		}
-		Console.OUT.println(count + " samples succeeded.");
+	 
 		if (count ==0n) {
 			//Console.OUT.println("No sample succeeded!");
 			return;
@@ -52,7 +53,7 @@ public class SamplingDriver[T](N:XLong){T haszero}
 			inner: for (j in 0..(i-1)) 
 				if (samples(i).isoEquals(samples(j))) {
 					if (logger.isTraceEnabled()) {
-						logger.trace("samples(i)=" + samples(i) + "i soEquals sample j=" + samples(j));
+						logger.trace("samples(i)=" + samples(i) + "isoEquals sample j=" + samples(j));
 					}
 					addEntry(results, samples(j), 1.0D/count);
 					continue outer;
@@ -63,13 +64,17 @@ public class SamplingDriver[T](N:XLong){T haszero}
 				}
 				addEntry(results, samples(i), 1.0D/count);
 			}
-		//val a = new ArrayList[x10.util.Map.Entry[Atom[T],XDouble]]();
+		val a = new ArrayList[x10.util.Map.Entry[Atom[T],XDouble]]();
 		for (e in results.entries()) {
-			//a.add(e);
-			Console.OUT.println(e.getKey() + ":" + e.getValue());
+			a.add(e);
+			//Console.OUT.print(String.format("%d: %.3f%n", [e.getKey()(), e.getValue()]));
 		}
-		//a.sort((x:x10.util.Map.Entry[Atom[T],XDouble],y:x10.util.Map.Entry[Atom[T],XDouble])=>
-		//x.getKey().getValue().compareTo(y.getKey().getValue()));
+		a.sort((x:x10.util.Map.Entry[Atom[T],XDouble],y:x10.util.Map.Entry[Atom[T],XDouble])=>
+		x.getKey().getValue().compareTo(y.getKey().getValue()));
+		for (e in a) {
+			Console.OUT.print(String.format("%d: %.3f%n", [e.getKey()(), e.getValue()]));
+		}
+		Console.OUT.println(String.format("%d of %d samples succeeded.", [count, N]));
 		
 	}
 	static def printExceptions(z:MultipleExceptions) {

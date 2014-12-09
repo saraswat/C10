@@ -1,12 +1,12 @@
 package c10.runtime.agent;
-import c10.runtime.herbrand.FailureError;
+import c10.runtime.herbrand.FailureException;
 
-/** Throws a Failure Error when executed. Useful for triggering backtracking.
+/** Throws a Failure Exception when executed. Useful for triggering backtracking.
  @author vj
  */
 public class FailureAgent extends BasicAgent {
        	public def now():void {
-	    throw new FailureError("Aborting...");
+	    throw new FailureException("Aborting...");
 	}
 
 }

@@ -1,0 +1,27 @@
+/* A puzzle from Gopal Raghavan. Find the longest word w which is such that
+ for every letter occurrence l in w there is a distinct anagram of w starting with l.
+*/
+class Crossgram {
+    @Gentzen def word(w:Atom, c:Char, ws:Atom).
+    goal crossgrams(Dict: List[Atom]) = R!{
+	if (all (W in Dict) {
+		W = name(Wls),
+		Wsls = Wls.msort(),
+		word(W, Wls.head, Wsls.head, name(Wsls)) // asserted in the store
+	    }) 
+        R=bagof(A, crossgram(A))
+     } 
+
+     goal crossgram(Words:List[Atom]) { 
+	word(Words.head, C, C, Ws),
+        Words.head = name(Wls),
+	Words.tail = crossgrams(Wls.tail, Ws, List(Words.head))
+     }
+
+     goal crossgram(Words:List[Char], S:Atom, X:List[Atom])= R!{
+	(Words=List.Null, R=List.Null);
+        (word(W, Words.head, S),
+         not(member(W, X)),
+         R=List(W, crossgram(Words.tail, S, List(W, X))))
+    }
+}

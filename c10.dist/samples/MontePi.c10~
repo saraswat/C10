@@ -1,0 +1,8 @@
+class MontePi(N:Int) {
+   val random = new Math.Random().
+   agent pi = avg((1..N)=> R ! {
+     X = random.nextDouble(),
+     Y = random.nextDouble(),
+     R = X*X + Y*Y <=1 ? 1 : 0
+   }
+}

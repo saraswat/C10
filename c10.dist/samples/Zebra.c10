@@ -1,0 +1,49 @@
+class Zebra {
+  enum Nationalities = {english, spanish, ukrainian, norwegian, japanese}.
+  enum Colors        = {red, green, ivory, yellow, blue}.
+  enum Animals       = {dog, fox, horse, zebra, snails}.
+  enum Drinks        = {coffee, tea, milk, orangeJuice, water}.
+  enum Cigarettes    = {oldGold, kools, chesterfields, luckyStrike, parliaments}.
+  type Houses = Int(0,4).
+  vars: Array(0..4,0..4)[Houses].
+  Nation = variables(0).
+  Color  = variables(1).
+  Animal = variables(2).
+  Drink  = variables(3).
+  Smoke  = variables(4).
+
+  agent rightof(h1:Houses, h2:Houses){ h1=h2+1}
+  agent nextto(h1:Houses, h2:Houses) { rightof(h1,h2) ; rightof(h2,h2)}
+  agent middle(h:Houses) {h=3}
+  agent left(h1:Houses)  {h=1}
+  agent constraints {
+      alldifferent(Nation), alldifferent(Color), alldifferent(Animal), 
+      alldifferent(Drink), alldifferent(Smoke), 
+      Nation(english)    = Color(red), 
+      Nation(spaniard)   = Animal(dog),
+      Drink(coffee)      = Color(green),
+      Nation(ukrainian)  = Drink(tea),
+      rightof(Color(green), Color(ivory)),
+      Smoke(oldGold)     = Animal(snails),
+      Smoke(kools)       = Color(yellow),
+      middle(Drink(milk)),
+      left(Nation(norwegian)),
+      nextto(Smoke(chesterfields), Animal(fox)),
+      nextto(Smoke(kools), Animal(horse)),
+      Smoke(luckyStrike) = Drink(orangeJuice),
+      Nation(japanese)   = Smoke(parliament),
+      nextto(Nation(norwegian), Color(blue))
+  }
+  def solve {
+     (I,J) = argmin((i,j:vars.domain)=>vars(i,j).size),
+     if (vars(I,J).size > 1) {
+        choose(vars(I,J)),
+        next solve()
+     }
+  }
+  public def agent main(String[Rail]) {
+     z = new Zebra,
+     z.constraints,
+     next z.solve
+  }
+}

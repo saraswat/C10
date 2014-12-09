@@ -10,16 +10,18 @@ import x10.util.logging.*;
 import c10.lang.Herbrand;
 import c10.runtime.agent.*;
 import c10.lang.Boolean;
+import c10.lang.XBoolean;
 import c10.lang.Atom;
 import c10.lang.Abort;
 import c10.lang.XInt;
 import x10.compiler.NoThisAccess;
 import x10.compiler.NonEscaping;
-import x10.compiler.NonEscaping;
-import x10.compiler.NonEscaping;
+
 
 public class Vat[T]{T haszero}  {
 	public static val logger = LogFactory.getLog("c10.runtime");
+	var failed:XBoolean = false;
+	public def failed():XBoolean=failed;
 	
 	/** This interface specifies what a Vat expects the initial object
 	 * to do. This object must create an instance p of Promise as a
@@ -145,11 +147,12 @@ public class Vat[T]{T haszero}  {
 					if ( logger.isDebugEnabled())
 						logger.debug( "Running choicepoints");
 					if (clock.collectedCP != null) clock.collectedCP.run();
-				} catch (z:FailureError) {
+				} catch (z:FailureException) {
 					if (logger.isInfoEnabled())
 						logger.info("The vat " + this + 
 								" became inconsistent at " + 
 								                           clock.timeStamp+".");
+					failed=true;
 				}
 				
 				// Compute the next agent.
@@ -167,7 +170,7 @@ public class Vat[T]{T haszero}  {
 			throw z;
 		}
 	}
-	public def  runOnce():void {
+	public def runOnce():void {
 		this.initPromise = initCall.getPromise();
 		this.agent = initCall.getAgent();
 		try {
@@ -195,11 +198,13 @@ public class Vat[T]{T haszero}  {
 					if ( logger.isDebugEnabled())
 						logger.debug( "Running choicepoints");
 					if (clock.collectedCP != null) clock.collectedCP.run();
-				} catch (z:FailureError) {
+				} catch (z:FailureException) {
+					//Console.OUT.println("Vat agent.now() failed." + z);
 					if (logger.isInfoEnabled())
 						logger.info("The vat " + this + 
 								" became inconsistent at " + 
 								                           clock.timeStamp+".");
+					failed=true;
 				}
 				
 				// Compute the next agent.
@@ -212,10 +217,12 @@ public class Vat[T]{T haszero}  {
 			//}
 		} catch (z:Abort) {
 			//z.printStackTrace();
-			
+			failed=true;
 			if (logger.isInfoEnabled())
 				logger.info("The Vat " + this + " has aborted at " + clock.timeStamp + ".");
 			throw z;
+		} finally {
+			//Console.OUT.println("Vat. Exiting vat.runOnce()");
 		}
 	}
 	

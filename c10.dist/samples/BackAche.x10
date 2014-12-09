@@ -1,43 +1,44 @@
 import c10.lang.Boolean;
 import c10.lang.XBoolean;
 import c10.lang.XInt;
+import c10.lang.XRail;
+import c10.lang.*;
 import c10.lang.probability.*;
 import c10.runtime.herbrand.*;
 import c10.runtime.agent.*;
-import c10.compiler.Agent;
+import c10.compiler.agent;
 import c10.util.*;
 
 public class BackAche extends Vat.BasicInitCall[XBoolean]{
-    val True = Boolean.TRUE, False = Boolean.FALSE;
+    val T = Boolean.TRUE, F = Boolean.FALSE;
     static type PV=ProbabilisticValue[XBoolean];
     def backache(Chair:Boolean, Sport:Boolean, Worker:Boolean,Back:Boolean, Ache:Boolean) {
-        Chair ~ new PV([True~0.8,False~0.2]);
-        Sport ~ new PV([True~0.02,False~0.98]);
-        Worker ~ new BooleanCasePD(Chair, [new PV([True~0.9,False~0.1]) as PD[XBoolean],
-                                           new PV([True~0.01,False~0.99])]);
-        Back ~ new BooleanCasePD2(Chair, Sport, [new PV([True~0.9,False~0.1]) as PD[XBoolean],
-                                                 new PV([True~0.2,False~0.8]),
-                                                 new PV([True~0.9,False~0.1]),
-                                                 new PV([True~0.01,False~0.99])
-                                                 ]);
-        Ache ~ new BooleanCasePD(Back, [new PV([True~0.7,False~0.3]) as PD[XBoolean],
-                                        new PV([True~0.1,False~0.9])]);
+        tell (Chair ~ new PV([T~0.8,F~0.2]));
+        tell (Sport ~ new PV([T~0.02,F~0.98]));
+        ask( (Chair ~ T) -> (()=> (Worker ~ new PV([T~0.9,F~0.1]))));
+        ask( (Chair ~ F) -> (()=>(Worker ~ new PV([T~0.01,F~0.99]))));
+        ask( (Chair ~ T) -> ((Sport~T) -> (()=>(Back ~ new PV([T~0.9,F~0.1])))));
+        ask( (Chair ~ T) -> ((Sport~F) -> (()=>(Back ~ new PV([T~0.2,F~0.8])))));
+        ask( (Chair ~ F) -> ((Sport~T) -> (()=>(Back ~ new PV([T~0.9,F~0.1])))));
+        ask( (Chair ~ F) -> ((Sport~F) -> (()=>(Back ~ new PV([T~0.01,F~0.99])))));
+        ask( (Back  ~ T) -> (()=>(Ache ~ new PV([T~0.7,F~0.3]))));
+        ask( (Back  ~ F) -> (()=>(Ache ~ new PV([T~0.1,F~0.9]))));
+        //ask( Ache -> (()=> {Console.OUT.println("Ache is " + Ache);}));
     }
-        
     public def this() {super((i:XInt)=>new Boolean());}
-    public def varName()="Ache";
     public def getAgent() =  {
         val Chair = new Boolean("Chair"), 
-        Sport = new Boolean("Sport"), Worker=new Boolean("Worker"), Back=new Boolean("Back"),
-        Ache=new Boolean("Ache");
+            Sport = new Boolean("Sport"), Worker=new Boolean("Worker"), 
+            Back=new Boolean("Back"), Ache=new Boolean("Ache");
+        
         new Now(()=>{
-                p.equate(Ache); // result variable
-                Chair.equate( True);
-                Sport.equate(True);
+        	    tell(p~ Ache);
+                tell(Chair ~ T);
+                tell(Sport ~ F);
                 backache(Chair,Sport,Worker,Back,Ache);
             })
     };
-    @Agent public static def main(args: XRail[String]) {
-        new SamplingDriver[XBoolean](1000n).run(args, ()=>new BackAche());
+    @agent public static def main(args: XRail[String]) {
+        new SamplingDriver[XBoolean](10n).run(args, ()=>new BackAche());
     }
 }

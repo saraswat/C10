@@ -1,0 +1,17 @@
+class Examples {
+  histogram(N:Int, a:Rail[Int(1,N)])= new Rail(sum (i:Long(0,(a.size-1))=> 1 groupby a(i))).
+
+  mult(A:Matrix[Double], B:Matrix[Double]{self.I==A.J})=C:Matrix[Double]{self.I=A.I,self.J=B.J} :-:
+     for ((i,j) in R) C(i,j) = sum (k: 1..A.J) => A(i,k)*B(k,j).
+
+
+  static type Vector(N:Int) = Rail[Double]{self.size==N}.
+  static class KMeans(N:Int, P:Int, K:Int, points:Rail[Vector(N)](P)) {
+
+     kmeans=R:Rail[Vector(N)](K) :-: R=kmeans(new Rail((i:0..(K-1))=>points(i))).
+
+     kmeans(oldmeans:Rail[Vector(N)](K))=means:Rail[Vector(N)](K) :-:
+       means1 = new Rail(avg (i:0..(P-1))=>points(i) groupby argmin (j:1..(K-1))=>delta(points(i), oldmeans(j))),
+       means=delta(oldmeans, means1) < epsilon? means1: kmeans(means1).
+  }
+}

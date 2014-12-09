@@ -1,6 +1,6 @@
 package c10.lang;
 
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 
 public class Float extends Number[XFloat] {
@@ -16,16 +16,16 @@ public class Float extends Number[XFloat] {
 	@NoThisAccess protected def lowerBound() = XFloat.MIN_VALUE;
 	@NoThisAccess protected def upperBound() = XFloat.MAX_VALUE;
 	
-	@Constraint    public  operator this < (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this < (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this > (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this > (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this <= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this <= (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this >= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this >= (x:Int): x10.lang.Boolean {
 		return false;
 	}
 	public static operator (x:XFloat):Float = new Float(x);

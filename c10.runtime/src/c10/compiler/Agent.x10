@@ -5,4 +5,4 @@ import x10.lang.annotations.MethodAnnotation;
 /**
  * @Agent marks those methods whose body should be interpreted as agents.
  */
-public interface Agent extends MethodAnnotation { }
+public interface agent extends MethodAnnotation { }

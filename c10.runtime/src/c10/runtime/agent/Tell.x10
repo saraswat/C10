@@ -16,7 +16,7 @@ public class Tell[T](p:Herbrand[T],q:Herbrand[T]) extends BasicAgent {
 		property(p, p.makeHerbrand(l));
 	}
 	public def now() throws Abort {
-	    p.equate(q);
+	    p~q;
 	}
 
 	/** A tell is quiescent if the corresponding ask succeeds. 

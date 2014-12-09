@@ -1,6 +1,6 @@
 package c10.lang.probability;
 
-import c10.compiler.Agent;
+import c10.compiler.agent;
 import x10.util.Random;
 import c10.lang.*;
 
@@ -14,17 +14,19 @@ public abstract class ProbabilityDistribution[S]{
 	 * Under normal execution, samples this probability distribution
 	 * to obtain a value s in S, and adds the constraint p=s to the store.
 	 */
-	@Agent public operator (p:Herbrand[S]) ~ this: void {
+	@agent public operator (p:Herbrand[S]) ~ this: Constraint = {
 		try {
+			if (p.known() && isLegal(p())) return new Constraint();
 			val s= sample();
-			//Console.OUT.println("Golden PD ~: p=" + p + " sample=" + s);
-			p.equate(s);
+			//Console.OUT.println("Sampling PD: p=" + p + " sample=" + s);
+			return p~s;
 		} catch (a:EmptyDomainException) {
 			// inconsistent sampling constraint
-			//Console.OUT.println("oi! EmptyDomainException??");
+			Console.OUT.println("oi! EmptyDomainException??" + a);
 			throw new Abort();
 		}
 	}
+	public abstract def isLegal(s:S):XBoolean;
 	/**
 	 * Sample the underlying observation. Can throw an EmptyDomainException
 	 */

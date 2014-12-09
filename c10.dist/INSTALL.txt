@@ -1,0 +1,43 @@
+(c) IBM Corporation
+
+This program is controlled by the Eclipse Public Licence v1.0.
+
+This is a distribution of the C10 Programming Language.
+http://c10-lang.org/
+
+To complete the installation, the scripts in bin/ may need to be made
+executable.
+
+Set the JAVA_HOME environment variable to point to the
+directory where you find bin/java.
+
+Java backend instructions
+-------------------------
+To compile an C10 source program using the Java backend, invoke
+"bin/c10c <class_name>.c10".
+See "bin/c10c --help" for command-line help.
+
+To run the compiled C10 class, invoke "bin/c10 <class_name>".
+See "bin/c10 --help" for command-line help.
+
+C10 programs compile into X10 programs. In this version, the generated
+X10 programs run in a single place. 
+
+C++ backend instructions
+------------------------
+To compile an C10 source program using the C++ backend, invoke
+"bin/c10c++ -o <class_name> <class_name>.c10".  This will
+produce an executable named "<class_name>" in the current
+directory[*].
+
+To run the compiled C10 executable in one place, invoke
+./<class_name>.
+
+
+[*] On Cygwin, the name will be "<class_name>.exe".  
+the -o argument may be omitted, but the compiler will then produce 
+an executable with the default name ("a.out" on Unix, "a.exe" on Cygwin).
+Also, on Cygwin you either need to use the x10.dist/bin/runx10 script
+to run the compiled executable or ensure that you include both
+x10.dist/lib and x10.dist/stdlib/lib in your load library path.
+

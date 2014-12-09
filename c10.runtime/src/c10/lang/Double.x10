@@ -5,10 +5,10 @@
 package c10.lang;
 
 import c10.util.Ordered;
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 import c10.runtime.agent.*;
-import c10.runtime.herbrand.FailureError;
+
 
 public class Double extends Number[XDouble] 
     implements Comparable[Double], Arithmetic[Double] 
@@ -18,6 +18,7 @@ public class Double extends Number[XDouble]
 	public def this(o:XDouble) {this(o,null);}
 	public def this(s:String) {super(s);}
 	public def this(o:XDouble,s:String) {super(o,s);}
+//	public operator this ~ (O:XDouble):c10.lang.Constraint[XDouble]= new c10.lang.Constraint(this, new Double(O));
 	
 	public def makeHerbrand(t:XDouble)=new Double(t);
 	public def makeHerbrand()=new Double();

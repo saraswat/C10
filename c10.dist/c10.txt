@@ -1,0 +1,197 @@
+C10 is a logic language with equality, and user-defined
+constraints, agents and goals.
+
+From a syntax point of view, the language is like that of Prolog with
+the following major changes:
+
+  (a) Object-orientation -- a program is made up of a number of class
+      and interface declarations, organized in packages. Each class
+      defines fields,  methods and constructors. Method definitions
+      may be abstract, overloaded and overriding. An interface defines
+      abstract methods; classes implement interfaces. Classes realize
+      a single-inheritance hierachy but may implement multiple interfaces.  
+
+      Methods and fields may be static or instance.
+
+  (b) Strong typing: All expresions have a compile-time type. The
+      compiler checks that only operations permitted by the type are
+      performed on an expression. 
+
+  (c) A distinction is made between the syntactic categories of
+      agents, goals and constraints. (Prolog permits only goals.) This 
+      reflects the basis of C10 in a richer subset of logic than
+      definite clauses. Users may define symbols in all these categories. 
+
+Methods are of three kinds -- constraint methods, goal methods and
+agent methods. This is specified by a @Constraint, @Goal or @Agent
+annotation on the method declaration. The body of an @Constraint,
+@Goal, @Agent method must be a Constraint, Goal or Agent,
+respectively. 
+
+Each of these kinds of methods are either predicate methods or
+function methods. 
+
+Predicate methods are declared thus. (We illustrate with Goals. Similar
+rules apply for agents and constraints.)
+
+  <Qualifiers> <GoalName> [ '(' <ArgList> ')' ]  :- <Goal>.
+
+and functions are declared thus:
+
+  <Qualifiers> <GoalName> [ '(' <ArgList> ')' ] = <VarName> [':' <Type>] :- <Goal>.
+  <Qualifiers> <GoalName> [ '(' <ArgList> ')' ] [ ':' <Type> =  <Term>  [ ':-' <Goal>] '.'
+
+The body of a function method may constrain the result variable, just
+as it may constrain any argument variable. The only difference between
+predicate and function methods is that functional notation (nesting)
+can be used to compose terms built from function names. During
+compilation nested functional terms are flattened with new variables
+used to represent the result of function application, e.g.
+    
+   Two=add(mult(A,B)) ==> M=mult(A,B), Two=add(M)
+
+By explicitly naming the return value in the header we obviate the
+need for a return statement. Constraints on the return variable may be
+imposed at any place in the body of the method. 
+
+This is basically the core language.
+
+<Qualifiers> ::= private | protected | local | abstract 
+
+(local is package-local)
+
+Alternative I: (uses symbols)
+
+<ConstraintDef> ::=
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] ':-:' <Constraint> '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] = <VarName> [':' <Type>] ':-:' <Constraint> '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] [ ':' <Type> =  <Term> [ ':-:' <Constraint>] '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] ':-:' '.'   % used for declarations
+
+<GoalDef> ::=
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ]  :- <Goal>.
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] = <VarName> [':' <Type>] :- <Goal>.
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] [ ':' <Type> =  <Term> [ ':-' <Goal>] '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] ':-' '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ]  '.'  % same as the previous one
+
+<AgentDef> ::=
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] -: <Agent>.
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] = <VarName> [':' <Type>] -: <Goal>.
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] [ ':' <Type> =  <Term> [ '-:' <Agent>] '.'
+  <Qualifiers> <Name> [ '(' <ArgList> ')' ] -:.
+
+Alternative II: (uses keywords)
+defgoal/defagent or goal/agent?
+
+<ConstraintDef> ::=
+  <Qualifiers> def <Name> [ '(' <ArgList> ')' ] '{' <Constraint> '}'
+  <Qualifiers> def <Name> [ '(' <ArgList> ')' ] '.'   % used for declarations
+  <Qualifiers> def <Name> [ '(' <ArgList> ')' ] [ ':' <Type> ] = <Term> '.'
+
+<GoalDef> ::=
+  <Qualifiers> defgoal <Name> [ '(' <ArgList> ')' ] '{' [<Goal>] '}'
+  <Qualifiers> defgoal <Name> [ '(' <ArgList> ')' ][ ':' <Type> ] = <Term> '.'
+
+<AgentDef> ::=
+  <Qualifiers> defagent <Name> [ '(' <ArgList> ')' ] { [ <Agent> ] }
+  <Qualifiers> defagent <Name> [ '(' <ArgList> ')' ] [ ':' <Type> ] = <Term> '.'
+
+<Term> ::= <Var>
+        | [ <Primary> '.' ] <Fun> '(' <TermList> ')'
+        | 'new' <ClassName> '(' <TermList> ')'
+        | <Var> '!' <Constraint>       
+
+ <Goal> ::= <Constraint>
+         | <GoalName> [ '(' <TermList> ')' ]
+         | <Primary> '.' <GoalName> [ '(' <TermList> ')' ]
+         | <Goal> ',' <Goal>
+         | <Goal> ';' <Goal>
+         | if (<Agent>) <Goal>
+         | some(<ArgList>) <Goal>
+         | all(<ArgList>) <Goal>
+
+ <Agent> ::= <Constraint>
+         | <AgentName> [ '(' <TermList> ')' ]
+         | <Primary> '.' <AgentName> [ '(' <TermList> ')' ]
+         | <Agent> ',' <Agent>
+         | <Agent> ';' <Agent>
+         | if (<Goal>) <Agent> [ else <Agent> ]
+         | some(<ArgList>) <Agent>
+         | all(<ArgList>) <Agent>
+
+ <Constraint> ::= 
+         | <ConstraintName> [ '(' <TermList> ')' ]
+         | <Primary> '.' <ConstraintName> [ '(' <TermList> ')' ]
+         | <Constraint> ',' <Constraint>
+         | <Constraint> ';' <Constraint>
+         | some(<ArgList>) <Constraint>
+
+<Primary> ::= <ClassName> | <Term>
+
+<ArgDecl> ::= <Var> [ ':' <Type> ] 
+
+<ArgDeclList> ::= <ArgDecl> | <ArgDecl> ',' <ArgDeclList>
+   
+
+To be considered later:
+  -- operators
+  -- static imports
+
+
+Map Reduce computations.
+
+Agent closure literals are of the form:
+  <AgentTerm> ::= (<ArgList>){<Goal>} => <AgentTerm>
+                  | (<ArgList>){<Goal>} => <AgentTerm> groupby <AgentTerm>
+e.g.
+   (I: 1..N){even(I)} => I+1
+
+Such a literal can be used to implicitly define a set, the set of all
+values in the range of the function.
+   V = set ((I: 1..N){even(I)} => I+1) // V = {3, 5, ... }
+
+In conventional mathematical notation this would have been expressed
+as:
+    V = { I+1 | even(I), I in 1..N}
+
+TODO: See if this is flexible enough. Is the generator powerful
+enough?
+
+Groupby clauses are also supported. In the production above,
+ the first <AgentTerm> is called the value and the second (after the
+ groupby) the key.
+
+e.g. ((I: 1..N) => I groupby I/2) 
+
+When such a function is applied to a value in its domain ("point-wise
+evaluation"), it produces a pair, Pair(k, v), where k is the result of
+evaluating the key, and v the value. The exhaustive evaluation of such
+a function results in a map (realized as an array whose domain is given by
+the set of possible key values) which associates each distinct key value k
+with the set of all values v s.t. pointwise evaluation produces
+Pair(k,v). 
+
+C10
+  OO, strong typing  
+  rich logic
+  time
+  probabilities  
+  distributed, parallel execution
+
+Intended for 
+  developing probabilistic, analytic applications involving big data,
+  executed reliably, in parallel on large clusters
+
+The central aspect of constraint programming -- unlike functional
+programming -- is dealing with partial information.
+
+We also want to be able to define expressions as types. Perhaps the
+way to do this is:
+
+type (I:Int)..(J:Int)=Int(I,J).
+type (I:Long)..(J:Long)=Long(I,J).
+
+That is, we permit the range operator to be overloaded so that it can
+be used to construct types, as well as values.
+

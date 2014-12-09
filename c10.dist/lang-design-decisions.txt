@@ -1,0 +1,24 @@
+Sat Sep 06 02:11:06 EDT 2014
+
+Try to see if we can get a language with a simple meta-interpreter.
+Ad hoc polymorphism or not? It simplifies life for the programmer, but
+there are complications with meta-programming? 
+
+Basically X10 type system
+  But no structs
+
+Interfaces
+  With code? 
+
+Classes
+  Inheritance hierarchy
+
+  Properties
+
+  Fields
+
+  Methods
+
+  Allow extender methods?
+
+

@@ -1,6 +1,6 @@
 package c10.lang;
 
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 import c10.runtime.agent.Case2;
 import c10.runtime.agent.Tell;
