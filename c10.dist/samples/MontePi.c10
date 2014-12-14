@@ -1,0 +1,12 @@
+class MontePi(N:Int) {
+   val random = new Math.Random().
+   agent pi = avg((1..N)=> R ! {
+     X = random.nextDouble(),
+     Y = random.nextDouble(),
+     R = X*X + Y*Y <=1 ? 1 : 0
+   }
+   public static agent main(args:Rail[String]) {
+      N = Integer.parseInt(args(0)),
+      Console.OUT.println("Estimate for pi:" + new MontePi(N).pi)
+   }
+}

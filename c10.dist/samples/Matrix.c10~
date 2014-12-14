@@ -1,0 +1,8 @@
+class Matrix(I:Int, J:Int) {
+  type rows=Int(0,I-1), cols=Int(0,J-1).
+  val values:Array_2[Double](I,J).
+  def this(I:Int, J:Int, f:(0..(I-1), 0..(I-1)=>Double)) {
+     this.I=I, this.J=J, 
+     for ((i,j) in (0..(I-1),0..(J-1)) values(i,j)=f(i,j)
+  }
+}

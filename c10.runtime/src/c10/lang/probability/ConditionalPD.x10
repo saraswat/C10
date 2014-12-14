@@ -1,6 +1,6 @@
 package c10.lang.probability;
 
-import c10.compiler.Agent;
+import c10.compiler.agent;
 import x10.util.Random;
 import c10.lang.*;
 import c10.runtime.agent.*;
@@ -15,7 +15,7 @@ public abstract class ConditionalPD[S,T](d1:Herbrand[T]){
 	 * Under normal execution, samples this probability distribution
 	 * to obtain a value s in S, and adds the constraint p=s to the store.
 	 */
-	@Agent public operator (p:Herbrand[S]) ~ this: void {
+	@agent public operator (p:Herbrand[S]) ~ this: void {
 		try {
 			// suspend until the dependent variables have a value,
 			// then use this value to obtain the underlying PD[S],

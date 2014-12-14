@@ -1,0 +1,207 @@
+Last update Wed Sep 10 08:05:51 EDT 2014
+
+
+C10 is a logic language with equality, and user-defined
+constraints, agents and goals.
+
+From a syntax point of view, the language is like that of Prolog with
+the following major changes:
+
+  (a) Object-orientation -- a program is made up of a number of class
+      and interface declarations, organized in packages. Each class
+      defines fields,  methods and constructors. Method definitions
+      may be abstract, overloaded and overriding. An interface defines
+      abstract methods; classes implement interfaces. Classes realize
+      a single-inheritance hierachy but may implement multiple interfaces.  
+
+      Methods and fields may be static or instance.
+
+  (b) Strong typing: All expresions have a compile-time type. The
+      compiler checks that only operations permitted by the type are
+      performed on an expression. 
+
+  (c) A distinction is made between the syntactic categories of
+      agents, goals and constraints. (Prolog permits only goals.) This 
+      reflects the basis of C10 in a richer subset of logic than
+      definite clauses. Users may define symbols in all these categories. 
+
+Methods are of four kinds -- constraint methods, goal methods and
+agent methods and neutral. They are declared respectively with the
+constraint, goal, agent and def keywords. The body of a constraint
+method must be a constraint (or invocation of a user-specified
+constraint). (Recursion is allowed.) The body of a goal method must be
+a goal, and of an agent method an agent. Neutral methods must
+statically satisfy the condition that they can be used on both sides
+of the sequent. That is, in any if Q S statement in the body of a
+neutral method, Q and S must lie in the 
+intersection of the syntax for goals and agents, i.e. Q they must be 
+possibly disjunctive or conjunctive combination of constraints or
+invocations of constraint or neutral methods. Since we structurally
+remove identity from our set of axioms we cannot logically get
+deductions that are incompatible with the operational interpretation
+of atoms as recursive calls. 
+
+Each of these kinds of methods are either predicate methods or
+function methods. 
+
+Predicate methods are declared thus. (We illustrate with Goals. Similar
+rules apply for agents and constraints.)
+
+<MethodDefKind> ::= constraint | agent | goal | def
+<Qualifiers> ::= private | protected | local | abstract 
+
+(local is package-local; default is public)
+
+  <Qualifiers> <MethodDefKind> <GoalName> [ '(' <ArgList> ')' ]  { <Body> }
+  <Qualifiers> <MethodDefKind> <GoalName> [ '(' <ArgList> ')' ]  '.'
+  <Qualifiers> <MethodDefKind> <GoalName> [ '(' <ArgList> ')' ] [ ':' <Type> ] = <Term> '.'
+
+The second kind of definition is used for declarations (such as
+abstract declarations) that do not have a body.
+
+The third kind of definition permits a function to be defined. The
+body of the method may constrain the result variable, just
+as it may constrain any argument variable. The only difference between
+predicate and function methods is that functional notation (nesting)
+can be used to compose terms built from function names. During
+compilation nested functional terms are flattened with new variables
+used to represent the result of function application, e.g.
+    
+   Two=add(mult(A,B)) ==> M=mult(A,B), Two=add(M)
+
+By explicitly naming the return value in the header we obviate the
+need for a return statement. Constraints on the return variable may be
+imposed at any place in the body of the method. 
+
+<Term> ::= <Var>
+        | [ <Primary> '.' ] <Fun> '(' <TermList> ')'
+        | 'new' <ClassName> '(' <TermList> ')'
+        | <Var> '!' <Constraint>       
+        | (<ArgList>){<Goal>} => <AgentTerm>
+        | (<ArgList>){<Goal>} => <AgentTerm> groupby <AgentTerm>
+
+ <Goal> ::= <Constraint>
+         | <Goal+Name> [ '(' <TermList> ')' ]
+         | <Primary> '.' <Goal+Name> [ '(' <TermList> ')' ]
+         | <Goal> ',' <Goal>
+         | <Goal> ';' <Goal>
+         | if (<Agent>) <Goal>
+         | some(<ArgList>) <Goal>
+         | all(<ArgList>) <Goal>
+
+ <Agent> ::= <Constraint>
+         | <Agent+Name> [ '(' <TermList> ')' ]
+         | <Primary> '.' <Agent+Name> [ '(' <TermList> ')' ]
+         | <Agent> ',' <Agent>
+         | <Agent> ';' <Agent>
+         | if (<Goal>) <Agent> [ else <Agent> ]
+         | some(<ArgList>) <Agent>
+         | all(<ArgList>) <Agent>
+
+ <Neutral> ::= <Constraint>
+         | <NeutralName> [ '(' <TermList> ')' ]
+         | <Primary> '.' <NeutralName> [ '(' <TermList> ')' ]
+         | <Neutral> ',' <Neutral>
+         | <Neutral> ';' <Neutral>
+         | if (<Neutral>) <Neutral> 
+         | some(<ArgList>) <Neutral>
+         | all(<ArgList>) <Neutral>
+
+<Goal+Name> ::= <GoalName> | <NeutralName>
+<Agent+Name> ::= <AgentName> | <NeutralName>
+
+ <Constraint> ::= 
+         | <ConstraintName> [ '(' <TermList> ')' ]
+         | <Primary> '.' <ConstraintName> [ '(' <TermList> ')' ]
+         | <Constraint> ',' <Constraint>
+         | <Constraint> ';' <Constraint>
+         | some(<ArgList>) <Constraint>
+         | '{' <Constraint> '}'
+
+<Primary> ::= <ClassName> | <Term>
+
+<ArgDecl> ::= <Var> [ ':' <Type> ] 
+
+<ArgDeclList> ::= <ArgDecl> | <ArgDecl> ',' <ArgDeclList>
+   
+(Class members include constructors, type declarations, variable
+declarations and method declarations.)
+
+This is basically the core language.
+
+To be considered later:
+  -- operators
+  -- static imports
+
+Map Reduce computations.
+
+Agent closure literals are of the form:
+
+e.g.
+   (I: 1..N){even(I)} => I+1
+
+Such a literal can be used to implicitly define a set, the set of all
+values in the range of the function.
+   V = set ((I: 1..N){even(I)} => I+1) // V = {3, 5, ... }
+
+In conventional mathematical notation this would have been expressed
+as:
+    V = { I+1 | even(I), I in 1..N}
+
+TODO: See if this is flexible enough. Is the generator powerful
+enough?
+
+Groupby clauses are also supported. In the production above,
+ the first <AgentTerm> is called the value and the second (after the
+ groupby) the key.
+
+e.g. ((I: 1..N) => I groupby I/2) 
+
+When such a function is applied to a value in its domain ("point-wise
+evaluation"), it produces a pair, Pair(k, v), where k is the result of
+evaluating the key, and v the value. The exhaustive evaluation of such
+a function results in a map (realized as an array whose domain is given by
+the set of possible key values) which associates each distinct key value k
+with the set of all values v s.t. pointwise evaluation produces
+Pair(k,v). 
+
+C10
+  OO, strong typing  
+  rich logic
+  time
+  probabilities  
+  distributed, parallel execution
+
+Intended for 
+  developing probabilistic, analytic applications involving big data,
+  executed reliably, in parallel on large clusters
+
+The central aspect of constraint programming -- unlike functional
+programming -- is dealing with partial information.
+
+We also want to be able to define expressions as types. Perhaps the
+way to do this is:
+
+type (I:Int)..(J:Int)=Int(I,J).
+type (I:Long)..(J:Long)=Long(I,J).
+
+That is, we permit the range operator to be overloaded so that it can
+be used to construct types, as well as values.
+
+
+Q -- Don't think we can let users define constraints recursively,
+because then we will face the same issue ... recursive unfolding on
+LHS and RHS is a problem.
+A -- No its ok, we simply ban the Identity axiom. 
+
+Mon Sep 08 03:59:04 EDT 2014
+
+Things to fix on the slides
+
+A lot of uses of X!c are of the form X!{c1,...,cn, X=t}, where the ci
+may involve local variables.
+
+Develop an example that uses nested function generators. Look at
+Stuckey's nested constraint program paper.
+
+

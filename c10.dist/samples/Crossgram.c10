@@ -1,0 +1,66 @@
+/* A puzzle from Gopal Raghavan. Find the longest word w which is such that
+ for every letter occurrence l in w there is a distinct anagram of w starting with l.
+*/
+class Crossgram {
+    /**
+      This declares the signature of a Gentzen constraint. 
+     */
+    @Getnzen def word(w:Atom, c:Char, ws:Atom);
+
+    /** 
+      C10 is a logic language with equality, and user-defined
+      constraints, agents and goals.
+
+      Methods are of three kinds -- constraint methods, 
+      goal methods and agent methods. This is specified by
+      a @Constraint, @Goal or @Agent annotation on the method declaration. 
+      The body of an @Constraint, @Goal, @Agent method must be 
+      a Constraint, Goal or Agent, respectively.
+
+      Each of these kinds of methods are either predicate methods or 
+      function methods.
+
+      Predicate methods are declared thus:
+
+         <Qualifiers> def <Name> (<ArgList>) { <Body> }
+
+      and functions are declared thus:
+
+         <Qualifiers> def <Name> (<ArgList>) = <Var> : <Type> { <Body> }
+
+      The body of a function method may constrain the result variable, just
+      as it may constrain any argument variable. The only difference between
+      predicate and function methods is that functional notation (nesting)
+      can be used to compose terms built from function names. During compilation
+      nested functional terms are flattened with new variables used to 
+      represent the result of function application, e.g.
+    
+        Two=add(mult(A,B)) ==> M=mult(A,B), Two=add(M)
+
+      By explicitly naming the return value in the header we obviate 
+      the need for a return statement. Constraints on the return
+      variable may be imposed at any place in the body of the method.
+     */
+    @Goal def crossgrams(Dict: List[Atom])=R:List[List[Atom]] {
+        // An implication A => G is represented by if (A) G.
+        // Revisit?
+	if (for (W in Dict) {
+		W = name(Wls);
+		Wsls = Wls.msort();
+		word(W, Wls.head, Wsls.head, name(Wsls)); // asserted in the store
+	    }) 
+	    R=bagof(A, crossgram(A)); 
+    }
+
+    @Goal def crossgram(Words:List[Atom]) {
+	word(Words.head, C, C, Ws);
+	Words.head = name(Wls);
+	Words.tail = crossgrams(Wls.tail, Ws, List(Words.head));
+    }
+    @Goal def Result:List[Atom]=crossgram(Words:List[Char], S:Atom, X:List[Atom]) {
+	(Words=List.Null, Result=List.Null);
+        (word(W, Words.head, S); 
+         not(member(W, X));
+         Result=List(W, crossgram(Words.tail, S, List(W, X))))
+    }
+}

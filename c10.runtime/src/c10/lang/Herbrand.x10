@@ -21,6 +21,34 @@ import x10.compiler.Native;
  * @author vj
  */
 public abstract class Herbrand[T] implements Teller[T], Backtrackable {
+	public operator this ~ (o:Herbrand[T]) = new Constraint1[T](this, o);
+	public operator this ~ (o:T) = new Constraint2(this, o);
+	
+	protected def myTypeName() = (this as Herbrand[T]).typeName();
+	public operator this -> (o:HAgent) = new HAgent() {
+		public operator this() {
+			
+			runWhenRealized(()=>{
+			//	Console.OUT.println("Herbrand ->HAgent:" + Herbrand.this + " realized. Running " + o);
+				o();});
+		}
+	};
+	public operator this -> (o:()=>HAgent) = new HAgent() {
+		public operator this() {
+			
+			runWhenRealized(()=>{
+			//	Console.OUT.println("Herbrand ->(()=>HAgent):" +Herbrand.this + " realized. Running " + o);
+				o()();
+				});
+		}
+	};
+	public operator this -> (oc:()=>void) = new HAgent() {
+		public operator this(){
+			runWhenRealized(()=>{
+			//	Console.OUT.println("Herbrand ->(()=>void):" + Herbrand.this + " realized. Running " + oc);
+				oc();});
+		}
+	};
 	
 	 public static val logger = LogFactory.getLog("c10");
 	 
@@ -349,6 +377,7 @@ public abstract class Herbrand[T] implements Teller[T], Backtrackable {
 	}
 	
 	
+	
 	public def runWhenRealizedDerefed( call:()=>void) 
 	throws Abort {
 		if ( this.isUnrealizedAndUnwatched() ) {
@@ -513,6 +542,7 @@ public abstract class Herbrand[T] implements Teller[T], Backtrackable {
 	abstract protected def equateBothDerefedAndRealized(other:Herbrand[T]):void; 
 	
 	public def getValue():T = this.dereference().getValueDerefed();
+	public operator this():T=getValue();
 	abstract protected def getValueDerefed():T;
 	abstract public def makeHerbrand(l:T):Herbrand[T];
 	abstract public def makeHerbrand():Herbrand[T];

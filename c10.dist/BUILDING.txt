@@ -1,0 +1,14 @@
+This is a source distribution of the 
+C10 Programming Language (http://x10-lang.org/).
+
+Detailed instructions for building C10 from source will eventually be found online
+at http://c10-lang.org/c10-development/building-c10-from-source.html.
+
+In a nutshell, building C10 is driven by ant.  
+
+If you have the prerequisites installed on your machine 
+(see the online documentation for details), then building C10 
+from source can be done with a single ant command:
+
+  cd c10.dist && ant -Doptimize=true dist
+

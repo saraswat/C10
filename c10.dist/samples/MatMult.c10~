@@ -1,0 +1,5 @@
+class MatMult {
+  mult(A:Matrix[Double], B:Matrix[Double]{self.I==A.J})=C:Matrix[Double]{self.I=A.I,self.J=B.J} :-:
+     for ((i,j) in R) 
+        C(i,j) = sum (k: 1..A.J) => A(i,k)*B(k,j).
+}

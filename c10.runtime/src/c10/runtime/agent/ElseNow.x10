@@ -131,7 +131,7 @@ public class ElseNow[T] extends BasicAgent implements ChoicePoint {
 	    } catch (z:Abort) {
 		clock.baseCP.popEnsureKnown();
 		throw z;
-	    } catch (z:FailureError) {
+	    } catch (z:FailureException) {
 		clock.baseCP.popEnsureKnown();
 		throw z;
 	    }
@@ -149,7 +149,7 @@ public class ElseNow[T] extends BasicAgent implements ChoicePoint {
 
 	/** Activate this choice point.
 	 */
-    public def run() throws Abort, FailureError {
+    public def run() throws Abort, FailureException {
 	if (p.known()) {
 	    isFuture = false;
 	    cont();
@@ -185,7 +185,7 @@ public class ElseNow[T] extends BasicAgent implements ChoicePoint {
 				  " has succeeded locally with the default.");
 		cont(); // with the success continuation.
 		return;
-	} catch (z:FailureError) {
+	} catch (z:FailureException) {
 		// Failure of unification triggers backtracking
 		if ( logger.isDebugEnabled())
 		    logger.debug( this + " has failed out of the default.");

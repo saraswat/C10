@@ -9,6 +9,7 @@ import c10.lang.probability.*;
 import x10.util.Pair;
 public class Boolean extends Atom[XBoolean]{
 	public operator this~(p:Probability):ProbValueItem[XBoolean] = ProbValueItem[XBoolean](atom,p);
+	//public operator this~ (o:XBoolean) = this ~ (o?TRUE:FALSE);
 	public operator this ** (b:Boolean)=Pair[Boolean,Boolean](this,b);
 	public static val FALSE = new Boolean(false);
 	public static val TRUE = new Boolean(true);

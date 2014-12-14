@@ -12,5 +12,7 @@ package c10.runtime.agent;
 */
 public class Now(a:()=>void) extends BasicAgent {
     public def isQuiescentNow()=alwaysQuiescent();
-    public def now() { a();}
+    public def now() { 
+    		a();
+    	}
 }

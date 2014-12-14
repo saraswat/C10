@@ -1,0 +1,166 @@
+C10 syntax and informal semantic
+Vijay Saraswat
+Last update Wed Sep 17 05:40:25 EDT 2014
+
+
+
+
+From a syntax point of view, the language is like that of Prolog with
+the following major changes:
+
+  (a) Object-orientation -- a program is made up of a number of class
+      and interface declarations, organized in packages. Each class
+      defines (static or instance) fields,  methods and
+      constructors. Method definitions may be abstract, overloaded and
+      overriding. An interface defines abstract methods; classes
+      implement interfaces. Classes realize a single-inheritance
+      hierachy but may implement multiple interfaces.   
+
+      Methods and fields may be static or instance.
+
+      TODO: Determine if traits are worth introducing.
+
+  (b) Strong typing: All expresions have a compile-time type. The
+      compiler checks that only operations permitted by the type are
+      performed on an expression. 
+
+  (c) A distinction is made between the syntactic categories of
+      agents, goals and constraints. (Prolog permits only goals.) This 
+      reflects the basis of C10 in a richer subset of logic than
+      definite clauses. Users may define symbols in all these categories. 
+
+A compilation unit is either a class definition, a struct definition,
+an interface definiton or a type definition.
+
+Classes, structs and interfaces are container types -- their bodies
+contain constructors, and static or instance type, field, method and
+function definitions.
+
+
+
+
+
+Predicate and function methods are declared thus. 
+
+
+
+
+
+
+
+
+
+
+CONSTRUCTOR definitions
+
+
+
+
+
+
+Additional Static Semantics Rules
+(over what X10 already provides)
+
+
+OO structure
+The user defines units -- classes, structs and interfaces -- as in X10. The bodies 
+of units are as in X10. TBD: Consider adding traits rather than interfaces. 
+
+
+EXAMPLE CODE
+
+The class Set is defined with various operators and static methods.
+
+public class Set[T] {
+  public static type a[T](s:Set[T])=T{self in s}.
+
+  public static def singleton[T](t:T)                    =collect offer t.
+  public static native def collect[T](a:Offers[T]):Set[T].
+
+  public operator this * (o:Set[T])=collect all(b:a[T](this)) if (some(c:a[T](y))b=c) offer b.
+  public operator this + (o:Set[T])=collect {all(x:a[T](this)) offer x, all(x:a[T](o)) offer y}.
+  public operator this - (o:Set[T])=collect all(x:a[T](this)) if (all(y:a[T](o))x !=y) offer x.
+  public def select[S](f:(T,S)=>S, zero:T):S = this as List[T].select(f,zero).
+
+}
+
+public class List[T] {
+   public def select[S](f:(T,S)=>S, zero:T):S =
+      this.null ? zero ^ tail.select(f, f(head, zero)).
+}
+
+Below we assume the follownig static type definitions:
+
+   static type Int(x:Int,y:Int{x<=y})   = Int{self >=x, self<=y}.
+   static type Long(x:Long,y:Long{x<=y})= Long{self >=x, self<=y}.
+   static type (x:Int)..(y:Int{x<=y})   = Int(X,Y).
+   static type (x:Long)..(y:Long{x<=y}) = Long(X,Y).
+
+(Note that x..y is now ambiguously a type or an expression.)
+   
+Map /GroupBy / Reduce computations.
+
+
+
+This definition of prime numbers in the range 1..N checks for each candidate x whether
+all the numbers from 2 to x/2 are factors. 
+
+def prime(N:Int{self >=2}) = 
+   collect all (x:2..N)
+            if (all (y:2..x/2) y !% x)
+              offer x.
+
+
+This definition uses the Sieve of Eratosthenes to push the checking into the generator,
+and only generate those numbers that are prime (i.e. do not have prime factors smaller
+than themselves as factors). This shows the advantage of decoupling 
+the offer statement (the generator) from the set collector, and the conditions
+(these are captured via agent/goal interplay in all the sophisticated ways the 
+language permits).
+
+def prime(N:Int) = collect prime(2..N).
+def prime(P:List[Int]) {
+  if (P.size>1) {
+    offer P.head, 
+    prime(P.tail.filter((x:Int)=>x%P.head >0))
+  }
+}
+
+Below we assume the following definitions.
+
+TODO: Check if this works with the X10 parser.
+We assume that a ternary operatorn _ ? _^_ has been defined thus
+  static operator [T] (a:Goal)?(b:T)^(c:T):T = M where if (a) M=b else M=c.
+
+Now various aggregators such as max and min can be defined thus. In the actual
+implementation this computation will be pushed into the generator.
+
+   def max[T](x:Agent[Offers[T]]){T <: Arithmetic[T]} = 
+      collect(x).select((x,y)=>(x<y)?y^x, T.maxValue).
+
+   def argmin[S,T](f:(S)=>T){T <: Arithmetic[T], nullable S} = 
+      collect(all (x:S) offer Pair(f(x),x))
+         .select((u,v)=>(u.fst<v.fst)?u^v, Pair(T.maxValue, S.null))
+         .snd.
+
+class KMeans(N:Int, P:Int, K:Int, pts:Rail[Vector(N)](P)) {
+  type Vector = Rail[Double](N). 
+
+  agent delta(A:Vector, B:Vector)= max(all(i:A.domain) offer Math.abs(A(i)-B(i))).
+
+  agent kmeans=kmeans(collect all(i:0..(K-1)) offer pts(i) groupby i).
+
+  agent kmeans(old:Rail[Vector](K))= {
+    T = avg(all(i:0..(P-1))
+           offer pts(i) groupby 
+             argmin ((j:0..(K-1))=> delta(pts(i), old(j)))),
+     X = delta(old, T),
+     offer X < epsilon? T ^ kmeans(T)
+   }
+}
+
+
+
+
+
+

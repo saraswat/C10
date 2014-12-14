@@ -1,6 +1,6 @@
 package c10.lang;
 
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 
 public class Short extends Number[XShort] {
@@ -15,16 +15,16 @@ public class Short extends Number[XShort] {
 	@NoThisAccess protected def lowerBound() = XShort.MIN_VALUE;
 	@NoThisAccess protected def upperBound() = XShort.MAX_VALUE;
 	
-	@Constraint    public  operator this < (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this < (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this > (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this > (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this <= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this <= (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this >= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this >= (x:Int): x10.lang.Boolean {
 		return false;
 	}
 	public static operator (x:XShort):Short = new Short(x);

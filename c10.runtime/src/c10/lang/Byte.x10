@@ -1,6 +1,6 @@
 package c10.lang;
 
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 
 public class Byte extends Number[XByte] {
@@ -14,16 +14,16 @@ public class Byte extends Number[XByte] {
 	@NoThisAccess protected def lowerBound() = XByte.MIN_VALUE;
 	@NoThisAccess protected def upperBound() = XByte.MAX_VALUE;
 	
-	@Constraint    public  operator this < (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this < (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this > (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this > (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this <= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this <= (x:Int): x10.lang.Boolean {
 		return false;
 	}
-	@Constraint    public  operator this >= (x:Int): x10.lang.Boolean {
+	@constraint    public  operator this >= (x:Int): x10.lang.Boolean {
 		return false;
 	}
 	public static operator (x:XByte):Byte = new Byte(x);

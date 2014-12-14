@@ -1,0 +1,11 @@
+type Matrix(I:int, J:Int)=Matrix{self.I=I,self.J=J}.
+class Matrix[T](I:Int, J:Int){T <: Arithemtic[T]} {
+  public type rows=0..(I-1), cols=0..(J-1).
+  val values:Array_2[T](I,J).
+  public def this(I:Int, J:Int, f:(0..(I-1), 0..(J-1))=>T)):Matrix(I,J) {
+     this.I=I, this.J=J, 
+     this.values=new Array_2[Double](I,J, f)
+  }
+  public operator this ** (o:Matrix[T]{self.I==this.J})=
+      new Matrix(I, o.J, (i:rows, j:o.cols)=> sum (k:cols)=>this(i,k)*o(k,j)).
+}

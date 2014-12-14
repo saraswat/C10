@@ -54,7 +54,7 @@ public class ProbabilisticValue[T] extends ProbabilityDistribution[T]
 			throw new IllegalProbabilisticValueException(a+ ": sum of probs must be close to 1.0D");
 	}
 	/**
-	 * Unsafe: Use with car. User's responsibility to ensure
+	 * Unsafe: Use with care. User's responsibility to ensure
 	 * the argument m has values for each entry that are non-negative
 	 * and the total across all sums up to 1.0D more or less.
 	
@@ -64,14 +64,33 @@ public class ProbabilisticValue[T] extends ProbabilityDistribution[T]
 	 *  */
 	def addEntry(t:T, p:XDouble) {map.put(t, p+map.getOrElse(t,0D));}
 	
+	// Todo: Check that associated probability is non-zero.
+	public def isLegal(t:T):XBoolean = {
+		for (e in this) {
+			if (e.getKey().equals(t)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Given a value, it returns the probability that the value is assumed.
+	 */
+    public def getProbability(t:T):XDouble{
+    	return map.getOrElse(t,0D);
+	}
+
 	protected def sample(p:XDouble):T {
 		var sum:XDouble=0;
 		var first:XBoolean=true;
 		for (e in this) {
 			val nSum = sum + e.getValue();
-			if (sum <= p&& p <= nSum) return e.getKey();
+			if (sum <= p&& p <= nSum) {
+				
+				return e.getKey();
+			}
+			sum = nSum;
 		}
-		throw new EmptyDomainException(this.toString());
+		throw new EmptyDomainException("p is " + p + " pv is " + this.toString());
 	}
 	public def iterator() = map.entries().iterator();
 	//public static operator[T] (a:T) ~ (b:x10.lang.Double) = ProbValueItem(a,b);

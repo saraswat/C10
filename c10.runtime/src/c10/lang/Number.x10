@@ -1,5 +1,5 @@
 package c10.lang;
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 import x10.compiler.NoThisAccess;
 import c10.util.XOrdered;
 import c10.util.Ordered;
@@ -81,48 +81,48 @@ extends Atom[T] implements Ordered[Number[T]] {
 	
 	//abstract public def makeHerbrand():Number[T]{self!=null};
 	//abstract public def makeHerbrand(t:T):Number[T]{self!=null};
-	@Constraint public operator (d:T) >  this: void {this <  d;}
-	@Constraint public operator (d:T) >= this: void {this <= d;}
-	@Constraint public operator (d:T) <  this: void {this >  d;}
-	@Constraint public operator (d:T) <= this: void {this >= d;}
+	@constraint public operator (d:T) >  this: void {this <  d;}
+	@constraint public operator (d:T) >= this: void {this <= d;}
+	@constraint public operator (d:T) <  this: void {this >  d;}
+	@constraint public operator (d:T) <= this: void {this >= d;}
 	
-	@Constraint public operator this > (d:T): void {
+	@constraint public operator this > (d:T): void {
 		val x = dereference() as Number[T];
 		interval.updateLowerBound(d,true);
 		check();
 	}
 	
-	@Constraint public operator this >= (d:T): void {
+	@constraint public operator this >= (d:T): void {
 		val x = dereference() as Number[T];
 		interval.updateLowerBound(d, false);
 		check();
 	}
-	@Constraint public operator this <= (d:T): void {
+	@constraint public operator this <= (d:T): void {
 		val x = dereference() as Number[T];
 		interval.updateUpperBound(d, false);
 		check();
 	}
-	@Constraint public operator this < (d:T): void {
+	@constraint public operator this < (d:T): void {
 		val x = dereference() as Number[T];
 		interval.updateUpperBound(d, true);
 		check();
 	}
 	
-	@Constraint public operator this < (d:Number[T]): void {
+	@constraint public operator this < (d:Number[T]): void {
 		// add propagation rules both ways.
 		new Case[T](this, (a:T)=> new Now(()=>{a < d;})).now();
 		new Case[T](d, (a:T)=> new Now(()=>{this < a;})).now();
 		
 	}
-	@Constraint public  operator this > (d:Number[T]): void {
+	@constraint public  operator this > (d:Number[T]): void {
 		new Case[T](this, (a:T)=> new Now(()=>{a > d;})).now();
 		new Case[T](d, (a:T)=> new Now(()=>{this > a;})).now();
 	}
-	@Constraint public operator this <= (d:Number[T]): void {
+	@constraint public operator this <= (d:Number[T]): void {
 		new Case[T](this, (a:T)=> new Now(()=>{a <= d;})).now();
 		new Case[T](d, (a:T)=> new Now(()=>{this <= a;})).now();
 	}
-	@Constraint public operator this >= (d:Number[T]): void {
+	@constraint public operator this >= (d:Number[T]): void {
 		new Case[T](this, (a:T)=> new Now(()=>{a >= d;})).now();
 		new Case[T](d, (a:T)=> new Now(()=>{this >= a;})).now();
 	}

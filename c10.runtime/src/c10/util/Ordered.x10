@@ -13,7 +13,7 @@ package c10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import c10.lang.Boolean;
-import c10.compiler.Constraint;
+import c10.compiler.constraint;
 /**
  * A set of common comparison operations.
  * Should be implemented by types that define a total order.
@@ -27,7 +27,7 @@ public interface Ordered[T] {
 	 * @param that the other entity
 	 * @return true if the current entity is strictly less than the other entity.
 	 */
-	@Constraint operator this <  (that: T): void;
+	@constraint operator this <  (that: T): void;
 
 	/**
 	 * A binary greater-than operator.
@@ -37,7 +37,7 @@ public interface Ordered[T] {
 	 * @param that the other entity
 	 * @return true if the current entity is strictly greater than the other entity.
 	 */
-	@Constraint operator this >  (that: T): void;
+	@constraint operator this >  (that: T): void;
 
 	/**
 	 * A binary less-than-or-equal-to operator.
@@ -47,7 +47,7 @@ public interface Ordered[T] {
 	 * @param that the other entity
 	 * @return true if the current entity is less than or equal to the other entity.
 	 */
-	@Constraint operator this <= (that: T): void;
+	@constraint operator this <= (that: T): void;
 
 	/**
 	 * A binary greater-than-or-equal-to operator.
@@ -57,5 +57,5 @@ public interface Ordered[T] {
 	 * @param that the other entity
 	 * @return true if the current entity is greater than or equal to the other entity.
 	 */
-	@Constraint operator this >= (that: T): void;
+	@constraint operator this >= (that: T): void;
 }
