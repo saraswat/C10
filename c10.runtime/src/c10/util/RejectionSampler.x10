@@ -9,7 +9,7 @@ import c10.lang.probability.ProbabilisticValue;
 import x10.util.HashMap;
 import x10.util.ArrayList;
 
-public class SamplingMHDriver[T](N:XLong){T haszero, T <: x10.lang.Comparable[T]}
+public class RejectionSampler[T](N:XLong){T haszero, T <: x10.lang.Comparable[T]}
 //implements C10Driver[T] 
 
 {
@@ -23,26 +23,24 @@ public class SamplingMHDriver[T](N:XLong){T haszero, T <: x10.lang.Comparable[T]
 	public def run(args: XRail[String], binder:(Herbrand[T])=>void, agentMaker:()=>InitCall[T]) {
 		val samples = new XRail[Atom[T]](N, null as Atom[T]);
 		var count: XInt = 0n;
-		var previousState:T;
-		
-		//Sample the first state at random
-		previousState=sampleState(args, agentMaker);
-		samples(0)=previousState;
-		
-		for (i in 1..(N-1)) {
-			
-			//Sample a new state
-			var sStar:T = sampleState(args, agentMaker);
-
-			//Compute acceptance probability
-			//TODO Andrea: use a method in agent to get the probability of the current state
-			var acceptance:XDouble = 1.0;
-			
-			//TODO Andrea: now the acceptance probability is 1
-			samples(i)=sStar;
-			sStar=previousState;
-			
-			
+		for (i in 0..(N-1)) {
+			val agent=agentMaker();		
+			agent.renew();
+			try {			
+				val driver = new CCDriver[T]();
+				driver.run(args, agent,true); // now run to get a sample
+				if (driver.failed) throw new FailureException();
+				count++;
+				samples(i) = agent.getPromise().getValue();
+				//Console.OUT.println("Sample " + i + " value :"  + samples(i));
+			} catch (z:Exception) { // check for Abort.
+				//Console.OUT.println("Sample " + i + " aborted." );
+				//z.printStackTrace();
+				samples(i)=null; // null out the result
+			} catch (z:Error) {
+				Console.OUT.println("Sample " + i + " aborted." );
+				z.printStackTrace();
+			} 
 		}
 	 
 		if (count ==0n) {
@@ -84,31 +82,6 @@ public class SamplingMHDriver[T](N:XLong){T haszero, T <: x10.lang.Comparable[T]
 			if (e instanceof MultipleExceptions) printExceptions(e as MultipleExceptions);
 			else Console.OUT.print(e + " ");
 		}
-	}
-	
-	private def sampleState(args: XRail[String], agentMaker:()=>InitCall[T]):T{
-		
-		val agent=agentMaker();		
-		agent.renew();
-		
-		try {			
-			val driver = new CCDriver[T]();
-			driver.run(args, agent,true); // now run to get a sample
-			if (driver.failed) throw new FailureException();
-			//count++;
-			return agent.getPromise().getValue();
-			//Console.OUT.println("Sample " + i + " value :"  + samples(i));
-		} catch (z:Exception) { // check for Abort.
-			//Console.OUT.println("Sample " + i + " aborted." );
-			//z.printStackTrace();
-			//return x; // null out the result
-			throw new FailureException();
-		} catch (z:Error) {
-			Console.OUT.println("Sample aborted." );
-			z.printStackTrace();
-			throw new FailureException();
-		} 
-		
 	}
 	
 }

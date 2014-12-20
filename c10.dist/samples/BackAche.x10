@@ -39,6 +39,6 @@ public class BackAche extends Vat.BasicInitCall[XBoolean]{
             })
     };
     @agent public static def main(args: XRail[String]) {
-        new SamplingDriver[XBoolean](10n).run(args, ()=>new BackAche());
+        new MHSampler[XBoolean](10n).run(args, ()=>new BackAche());
     }
 }
