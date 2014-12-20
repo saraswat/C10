@@ -3,6 +3,8 @@ package c10.lang.probability;
 import c10.compiler.agent;
 import x10.util.Random;
 import c10.lang.*;
+import x10.util.Pair;
+import c10.util.Sampler;
 
 /**
  * Specifies a probablity distribution over the underlying domain Z.
@@ -19,7 +21,9 @@ public abstract class ProbabilityDistribution[S]{
 			if (p.known() && isLegal(p())) return new Constraint();
 			val s= sample();
 			//Console.OUT.println("Sampling PD: p=" + p + " sample=" + s);
-			return p~s;
+			Sampler.currentSampler.value.currentProbability *= s.second;
+			
+			return p~s.first;
 		} catch (a:EmptyDomainException) {
 			// inconsistent sampling constraint
 			Console.OUT.println("oi! EmptyDomainException??" + a);
@@ -30,11 +34,11 @@ public abstract class ProbabilityDistribution[S]{
 	/**
 	 * Sample the underlying observation. Can throw an EmptyDomainException
 	 */
-	public def sample():S = sample(new Random().nextDouble());
+	public def sample():Pair[S,XDouble] = sample(new Random().nextDouble());
 	
 	/**
 	 * An internal method that produces a sample from the underlying distribution
 	 * given a random double between 0.0D and 1.0D.
 	 */
-	protected abstract def sample(random:XDouble):S;
+	protected abstract def sample(random:XDouble):Pair[S,XDouble];
 }

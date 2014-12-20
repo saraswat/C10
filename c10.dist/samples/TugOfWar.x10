@@ -11,8 +11,7 @@ import c10.lang.Reducible;
 import c10.runtime.agent.*;
 import c10.compiler.agent;
 import c10.runtime.herbrand.Vat;
-import c10.util.SamplingDriver;
-import c10.util.SamplingMHDriver;
+import c10.util.RejectionSampler;
 
 public class TugOfWar extends Vat.BasicInitCall[XInt] {
 	static val T = Boolean.TRUE, F = Boolean.FALSE;
@@ -75,6 +74,6 @@ public class TugOfWar extends Vat.BasicInitCall[XInt] {
 			results(Bob); 
 		})};
 	@agent public static def main(args: XRail[String]) {
-		new SamplingDriver[XInt](10000).run(args, ()=>new TugOfWar());
+		new RejectionSampler[XInt](10000).run(args, ()=>new TugOfWar());
 	}
 }

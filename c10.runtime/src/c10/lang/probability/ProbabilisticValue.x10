@@ -79,14 +79,14 @@ public class ProbabilisticValue[T] extends ProbabilityDistribution[T]
     	return map.getOrElse(t,0D);
 	}
 
-	protected def sample(p:XDouble):T {
+	protected def sample(p:XDouble):Pair[T,XDouble]{
 		var sum:XDouble=0;
 		var first:XBoolean=true;
 		for (e in this) {
 			val nSum = sum + e.getValue();
 			if (sum <= p&& p <= nSum) {
 				
-				return e.getKey();
+				return new Pair(e.getKey(), e.getValue());
 			}
 			sum = nSum;
 		}

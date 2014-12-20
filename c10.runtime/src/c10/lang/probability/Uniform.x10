@@ -4,6 +4,9 @@ import x10.lang.Double;
 import c10.lang.Herbrand;
 import x10.lang.Comparable;
 import c10.lang.XBoolean;
+import c10.lang.XDouble;
+import x10.util.Pair;
+
 /**
  * The Uniform Distribution in the range [a,b].
  * 
@@ -16,6 +19,6 @@ public class Uniform[T]{T <: Arithmetic[T], T <: Comparable[T] } extends PD[T] {
 	 * it into a T value drawn uniformly from the bounds.
 	 */
 	public def this(a:T,b:T, conv:(Double)=>T){this.a=a; this.b=b;this.conv=conv;}
-	public def sample(p:Double):T = conv(p);
+	public def sample(p:Double):Pair[T,XDouble] = {return new Pair(conv(p), 1/p);}
 	public def isLegal(t:T):XBoolean= a.compareTo(a) <= 0 & t.compareTo(b) <= 0;
 }
